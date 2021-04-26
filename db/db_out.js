@@ -1,7 +1,7 @@
 const { mypool } = require('./db_conn.js');
 
 const getAll = (req, res) => {
-    mypool.query(`SELECT * FROM anbar`)
+    mypool.query(`SELECT * FROM selectall_baku_time`)
         .then((result) => {
             const { rows } = result;
             res.status(200).send(rows);
@@ -11,7 +11,7 @@ const getAll = (req, res) => {
 
 const getById = (req, res) => {
     const { id } = req.params;
-    mypool.query(`SELECT * FROM anbar WHERE mehsul_id = $1`, [id])
+    mypool.query(`SELECT * FROM selectall_baku_time WHERE mehsul_id = $1`, [id])
         .then((result) => {
             const { rows } = result;
             res.status(200).send(rows);
@@ -19,9 +19,10 @@ const getById = (req, res) => {
 }
 
 const getByTimeInterval = (req, res) => {
-    const startTime = new Date('2021-04-22 19:15+00:00'); // add explicit timezone if you don't want automatically added local zone
-    const currentTime = new Date();
-    mypool.query(`SELECT * FROM anbar WHERE daxilolma_tarixi BETWEEN $1 AND $2`, [startTime, currentTime])
+    const {startDate, endDate} = req.body;
+    console.log(`START DATE: ${startDate}  END DATE: ${endDate}`)
+
+    mypool.query(`SELECT * FROM selectall_baku_time WHERE daxilolma_tarixi BETWEEN $1 AND $2`, [startDate, endDate])
         .then((result) => res.status(200).send(result.rows))
         .catch(e => console.log(e));
 }

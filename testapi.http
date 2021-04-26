@@ -1,0 +1,15 @@
+###
+
+GET http://localhost:9999/anbarout/getall  HTTP/1.1
+
+###
+GET http://localhost:9999/anbarout/getbyid/2 HTTP/1.1
+
+###
+POST http://localhost:9999/anbarout/getbytimeinterval HTTP/1.1
+Content-Type: application/json
+
+{
+    "startDate": "2021-04-22 17:22+04:00",
+    "endDate": "2021-04-22 19:35+04:00"
+}

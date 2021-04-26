@@ -5,6 +5,6 @@ const router = Router();
 
 router.get('/getall', db_out.getAll);
 router.get('/getbyid/:id', db_out.getById);
-router.get('/getbytimeinterval', db_out.getByTimeInterval);
+router.post('/getbytimeinterval', db_out.getByTimeInterval);
 
 module.exports = router;

@@ -25,6 +25,7 @@ const populateTable = () => {
 
 // create & init table with data
 mypool.query(`
+    DROP VIEW IF EXISTS selectall_baku_time;
     DROP TABLE IF EXISTS anbar;
     CREATE TABLE anbar(
         mehsul_id BIGINT GENERATED ALWAYS AS IDENTITY,
@@ -34,7 +35,14 @@ mypool.query(`
         daxilolma_tarixi TIMESTAMPTZ DEFAULT current_timestamp,
         PRIMARY KEY(mehsul_id));`
 )
-    .then(() => console.log('OK'))
+    .then(() => {
+        mypool.query(`
+        CREATE VIEW selectall_baku_time AS
+            SELECT mehsul_id, mehsul_adi, mehsul_miqdar,
+            daxilolma_tarixi AT TIME ZONE 'Asia/Baku' AS daxilolma_tarixi
+            FROM anbar;
+    `)
+    })
     .then(populateTable)
     .catch(error => console.log(error))
 

@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 
 // Routers
@@ -12,7 +13,9 @@ const corsOptions = {
     origin: 'https://anbar.texnokom.az', // only allow requests from this address
 }
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptions))
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
 // ROUTERS START
 app.use('/entry', Entry);
