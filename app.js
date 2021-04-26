@@ -10,7 +10,8 @@ const Anbar_OUT = require('./router/Anbar_OUT_Router.js');
 const app = express();
 
 const corsOptions = {
-    origin: 'https://anbar.texnokom.az', // only allow requests from this address
+    origin: 'https://anbar.texnokom.az',
+    origin: 'http://localhost:8080', // only allow requests from this address
 }
 
 app.use(cors(corsOptions))
