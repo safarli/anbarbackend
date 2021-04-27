@@ -1,10 +1,8 @@
 const {Router} = require('express');
+const {daxiletMehsul} = require('../db/db_in');
 
 const router = Router();
 
-router.post('/mehsul', (req, res) => {
-    console.log(req.body);
-    res.status(200).send('Reception OK!');
-})
+router.post('/mehsul', daxiletMehsul);
 
 module.exports = router;
