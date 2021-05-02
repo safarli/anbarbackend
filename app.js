@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 
 // Routers
@@ -12,6 +11,8 @@ const app = express();
 const corsOptions = {
     origin: 'https://anbar.texnokom.az',
     origin: 'http://localhost:8080', // only allow requests from this address
+    origin: 'http://192.168.0.106:8080',
+    origin: 'http://localhost:8080'
 }
 
 app.use(cors(corsOptions))
