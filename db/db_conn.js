@@ -29,7 +29,13 @@ const populateTable = () => {
         ('Mikrotik RB2011UAS', 'ED', 886, '2021-04-22 18:44+03:00'),
         ('TP-Link Wifi Router', 'ED', 170, '2021-04-22 18:44+03:00'),
         ('Cisco Switch 24 Port', 'ED', 802, '2021-04-22 18:44+03:00'),
-        ('PTZ Camera', 'ED', 369, '2021-04-22 18:44+03:00');`)
+        ('Hytera PNC 370', 'ED', 228, '2021-04-22 18:44+03:00'),
+        ('USB Flash 16Gb', 'ED', 105, '2021-04-22 18:44+03:00'),
+        ('TP-Link 4port Mbit Switch', 'ED', 939, '2021-04-22 18:44+03:00'),
+        ('Fluke Digital Multimeter', 'ED', 300, '2021-04-22 18:44+03:00'),
+        ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
+        ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
+        ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00');`)
 }
 
 // create & init table with data
