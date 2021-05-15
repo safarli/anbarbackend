@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 
 // Routers
-// const Entry = require('./router/ENTRY_Router.js');
-// const Anbar_IN = require('./router/Anbar_IN_Router.js');
-// const Anbar_OUT = require('./router/Anbar_OUT_Router.js');
+const Entry = require('./router/ENTRY_Router.js');
+const Anbar_IN = require('./router/Anbar_IN_Router.js');
+const Anbar_OUT = require('./router/Anbar_OUT_Router.js');
 
 const app = express();
 
@@ -21,9 +21,9 @@ app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
 // ROUTERS START
-// app.use('/entry', Entry);
-// app.use('/anbarin', Anbar_IN);
-// app.use('/anbarout', Anbar_OUT);
+app.use('/entry', Entry);
+app.use('/anbarin', Anbar_IN);
+app.use('/anbarout', Anbar_OUT);
 // ROUTERS END
 
 app.get('/', (req, res) => {
