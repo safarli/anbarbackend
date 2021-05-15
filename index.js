@@ -30,5 +30,6 @@ app.get('/', (req, res) => {
 })
 
 
-const APP_PORT = 9999;
-app.listen(APP_PORT, () => console.log(`Server started and listening on port ${APP_PORT}`));
+app.listen(process.env.PORT || 9999, () => console.log(`Server started and listening on port ${APP_PORT}`));
+
+module.exports = app;
