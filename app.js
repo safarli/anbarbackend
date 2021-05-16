@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const faker = require('faker');
 
 // Routers
 const Entry = require('./router/ENTRY_Router.js');
@@ -28,6 +29,11 @@ app.use('/anbarout', Anbar_OUT);
 
 app.get('/', (req, res) => {
     res.status(200).send('ROOT PATH ACCESSED');
+})
+app.get('/random', (req, res) => {
+    let name = faker.name.findName();
+    let email = faker.internet.email();
+    res.status(200).send(`Name: ${name} Email: ${email}`)
 })
 
 
