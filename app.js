@@ -30,10 +30,16 @@ app.use('/anbarout', Anbar_OUT);
 app.get('/', (req, res) => {
     res.status(200).send('ROOT PATH ACCESSED');
 })
-app.get('/random', (req, res) => {
-    let name = faker.name.findName();
-    let email = faker.internet.email();
-    res.status(200).send(`Name: ${name} Email: ${email}`)
+app.get('/random/:param', (req, res) => {
+    const {param} = req.params;
+
+    switch(param){
+        case "country": return res.status(200).send(`Country: ${faker.address.country()}`)
+        case "name": return res.status(200).send(`Name: ${faker.name.findName()}`)
+        case "email": return res.status(200).send(`Email: ${faker.internet.email()}`)
+    }
+
+    return res.status(200).send(`Your argument: ${param}`)
 })
 
 
