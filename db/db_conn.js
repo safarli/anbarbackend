@@ -1,11 +1,19 @@
 const pg = require('pg');
 
+// connOptions = {
+//     host: 'database-1.cd5r1pmmefjf.eu-west-3.rds.amazonaws.com',
+//     port: 5432,
+//     user: 'postgres',
+//     password: 'rokko001',
+//     database: 'postgres',
+// }
+
 connOptions = {
-    host: 'database-1.cd5r1pmmefjf.eu-west-3.rds.amazonaws.com',
+    host: 'wavevo-db.cs4fvunkgxjn.us-east-1.rds.amazonaws.com',
     port: 5432,
     user: 'postgres',
-    password: 'rokko001',
-    database: 'postgres',
+    password: '!Doke99a3!',
+    database: 'postgres'
 }
 
 const mypool = new pg.Pool(connOptions);
