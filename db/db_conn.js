@@ -1,7 +1,7 @@
 const pg = require('pg');
 
 connOptions = {
-    host: 'wavevo-db.cs4fvunkgxjn.us-east-1.rds.amazonaws.com',
+    host: 'db-wavevo.cs4fvunkgxjn.us-east-1.rds.amazonaws.com',
     port: 5432,
     user: 'postgres',
     password: '!Doke99a3!',
@@ -66,7 +66,7 @@ mypool.query(`
             (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
             (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
             FROM anbar;`
-            )
+        )
     })
     .then(populateTable)
     .catch(error => console.log(error))
