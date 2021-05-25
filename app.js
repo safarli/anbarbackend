@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const cors = require('cors');
 const { prepareDb } = require('./db/db_conn')
 
@@ -29,7 +30,7 @@ app.get('/', (req, res) => {
 
 async function main() {
     try {
-        if (process.env.INITIAL_DB) {
+        if (process.env.INITIAL_DB === "true") {
             let result = await prepareDb();
             console.log(result)
         }
