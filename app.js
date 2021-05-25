@@ -31,12 +31,12 @@ async function main() {
     try {
         let dbPrepareResult = await prepareDb();
         console.log(dbPrepareResult)
+        app.listen(process.env.PORT || 9999, () => console.log('Started'));
     }
     catch (e) {
-        console.log(`Error occured while preparing database: ${e}`)
+        console.log(e)
         process.exit();
     }
-    app.listen(process.env.PORT || 9999, () => console.log('Started'));
 }
 main();
 
