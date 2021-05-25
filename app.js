@@ -34,7 +34,8 @@ async function main() {
             let result = await prepareDb();
             console.log(result)
         }
-        app.listen(process.env.PORT || 9999, () => console.log('Started'));
+        // app.listen(process.env.PORT || 9999, () => console.log('Started'));
+        app.listen(9999, () => console.log('Started'));
     }
     catch (e) {
         console.log(e)
