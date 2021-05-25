@@ -29,8 +29,8 @@ app.get('/', (req, res) => {
 
 async function main() {
     try {
-        let dbPrepareResult = await prepareDb();
-        console.log(dbPrepareResult)
+        let result = await prepareDb();
+        console.log(result)
         app.listen(process.env.PORT || 9999, () => console.log('Started'));
     }
     catch (e) {

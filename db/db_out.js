@@ -33,7 +33,6 @@ const getByTimeInterval = async (req, res) => {
     catch (e) {
         throw new Error(`Error occured while selecting by time interval ${e}`)
     }
-
 }
 
 module.exports = {

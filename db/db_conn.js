@@ -13,7 +13,6 @@ const mypool = new pg.Pool(connOptions)
 const dropViews = async () => {
     try {
         await mypool.query(`
-        DROP VIEW asdfasdf;
             DROP VIEW IF EXISTS selectall_baku;
             DROP VIEW IF EXISTS selectall_istanbul;
         `)
