@@ -5,13 +5,72 @@ connOptions = {
     port: 5432,
     user: 'postgres',
     password: '!Doke99a3!',
-    database: 'postgres'
+    database: 'anbar_db'
 }
 
-const mypool = new pg.Pool(connOptions);
+const mypool = new pg.Pool(connOptions)
 
-const populateTable = () => {
-    mypool.query(`
+const dropViews = async () => {
+    try {
+        await mypool.query(`
+            DROP VIEW IF EXISTS selectall_baku;
+            DROP VIEW IF EXISTS selectall_istanbul;
+        `)
+    } catch (e) {
+        throw new Error(`Error occured while dropping views: ${e}`)
+    }
+}
+
+const dropTables = async () => {
+    try {
+        await mypool.query(`DROP TABLE IF EXISTS anbar;`)
+    }
+    catch (e) {
+        throw new Error(`Error occured while dropping tables: ${e}`)
+    }
+}
+
+const createTable = async () => {
+    try {
+        await mypool.query(`
+        CREATE TABLE anbar(
+            mehsul_id BIGINT GENERATED ALWAYS AS IDENTITY,
+            mehsul_adi VARCHAR(300) NOT NULL,
+            mehsul_vahidi CHAR(3) NOT NULL,
+            mehsul_miqdar INT NOT NULL,
+            anbar_tarix TIMESTAMPTZ NOT NULL,
+            baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+            PRIMARY KEY(mehsul_id)
+            );
+        `)
+    } catch (e) {
+        throw new Error(`Error occured while creating tables: ${e}`)
+    }
+}
+
+const createViews = async () => {
+    try {
+        await mypool.query(`
+        CREATE VIEW selectall_baku AS
+            SELECT mehsul_id AS id, mehsul_adi AS ad, mehsul_vahidi AS vahid, mehsul_miqdar AS miqdar, 
+            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS anbar_tarix,
+            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS baza_tarix
+            FROM anbar;
+
+        CREATE VIEW selectall_istanbul AS
+            SELECT mehsul_id as id, mehsul_adi as ad, mehsul_vahidi as vahid, mehsul_miqdar as miqdar, 
+            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
+            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
+            FROM anbar;
+        `)
+    } catch (e) {
+        throw new Error(`Error occured while creating views: ${e}`)
+    }
+}
+
+const populateTable = async () => {
+    try {
+        await mypool.query(`
         INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         VALUES 
         ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
@@ -36,42 +95,29 @@ const populateTable = () => {
         ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
         ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
         ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00');`)
+    }
+    catch (e) {
+        throw new Error(`Error occured while populating table: ${e}`)
+    }
 }
 
-// create & init table with data
-mypool.query(`
-    DROP VIEW IF EXISTS selectall_baku;
-    DROP VIEW IF EXISTS selectall_istanbul;
-    DROP TABLE IF EXISTS anbar;
-    CREATE TABLE anbar(
-        mehsul_id BIGINT GENERATED ALWAYS AS IDENTITY,
-        mehsul_adi VARCHAR(300) NOT NULL,
-        mehsul_vahidi CHAR(3) NOT NULL,
-        mehsul_miqdar INT NOT NULL,
-        anbar_tarix TIMESTAMPTZ NOT NULL,
-        baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-        PRIMARY KEY(mehsul_id)
-        );`
-)
-    .then(() => {
-        mypool.query(`
-        CREATE VIEW selectall_baku AS
-            SELECT mehsul_id AS id, mehsul_adi AS ad, mehsul_vahidi AS vahid, mehsul_miqdar AS miqdar, 
-            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS anbar_tarix,
-            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS baza_tarix
-            FROM anbar;
+const prepareDb = async () => {
+    try {
+        await dropViews();
+        await dropTables();
+        await createTable();
+        await createViews();
+        await populateTable();
+    }
+    catch (e) {
+        console.error(e)
+        process.exit();
+    }
 
-        CREATE VIEW selectall_istanbul AS
-            SELECT mehsul_id as id, mehsul_adi as ad, mehsul_vahidi as vahid, mehsul_miqdar as miqdar, 
-            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
-            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
-            FROM anbar;`
-        )
-    })
-    .then(populateTable)
-    .catch(error => console.log(error))
+    return "Database is prepared successfully"
+}
 
 module.exports = {
     mypool,
+    prepareDb
 }
-
