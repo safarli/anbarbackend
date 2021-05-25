@@ -4,7 +4,7 @@ const insertItem = async (req, res) => {
     console.log(req.body);
 
     const { ad, vahid, miqdar, tarix } = req.body;
-    const tarix_tz = tarix + "T07:00+00:00";
+    const tarix_tz = tarix + "T00:00+00:00";
 
     try {
         await mypool.query(`
