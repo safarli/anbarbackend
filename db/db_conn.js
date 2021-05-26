@@ -118,7 +118,7 @@ const prepareDb = async () => {
         await populateTable();
     }
     catch (e) {
-        throw new Error(`Error occured while preparing database -> ${e.message}`)
+        throw new Error(`Database preparation failed -> ${e.message}`)
     }
 
     return "Database is prepared successfully"
