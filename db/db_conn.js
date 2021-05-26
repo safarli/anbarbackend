@@ -17,7 +17,8 @@ const dropViews = async () => {
             DROP VIEW IF EXISTS selectall_istanbul;
         `)
     } catch (e) {
-        throw new Error(`Error occured while dropping views: ${e}`)
+        e.message = "Error occured in dropViews(): " + e.message
+        throw e
     }
 }
 
@@ -26,7 +27,8 @@ const dropTables = async () => {
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
     }
     catch (e) {
-        throw new Error(`Error occured while dropping tables: ${e}`)
+        e.message = "Error occured in dropTables(): " + e.message
+        throw e
     }
 }
 
@@ -44,7 +46,8 @@ const createTable = async () => {
             );
         `)
     } catch (e) {
-        throw new Error(`Error occured while creating tables: ${e}`)
+        e.message = "Error occured in createTable(): " + e.message
+        throw e
     }
 }
 
@@ -64,13 +67,15 @@ const createViews = async () => {
             FROM anbar;
         `)
     } catch (e) {
-        throw new Error(`Error occured while creating views: ${e}`)
+        e.message = "Error occured in createViews(): " + e.message
+        throw e;
     }
 }
 
 const populateTable = async () => {
     try {
         await mypool.query(`
+        SELECOOO *;
         INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         VALUES 
         ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
@@ -94,10 +99,13 @@ const populateTable = async () => {
         ('Fluke Digital Multimeter', 'ED', 300, '2021-04-22 18:44+03:00'),
         ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
         ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
-        ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00');`)
+        ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00'),
+        ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00');
+        `)
     }
     catch (e) {
-        throw new Error(`Error occured while populating table: ${e}`)
+        e.message = "Error occured in populateTable() -> " + e.message
+        throw e;
     }
 }
 
@@ -110,7 +118,7 @@ const prepareDb = async () => {
         await populateTable();
     }
     catch (e) {
-        throw new Error('Error occured while preparing database: ' + e)
+        throw new Error(`Error occured while preparing database -> ${e.message}`)
     }
 
     return "Database is prepared successfully"
