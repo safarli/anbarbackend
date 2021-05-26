@@ -17,7 +17,7 @@ const dropViews = async () => {
             DROP VIEW IF EXISTS selectall_istanbul;
         `)
     } catch (e) {
-        e.message = "Error occured in dropViews(): " + e.message
+        e.message = "Error occured in dropViews() -> " + e.message
         throw e
     }
 }
@@ -27,7 +27,7 @@ const dropTables = async () => {
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
     }
     catch (e) {
-        e.message = "Error occured in dropTables(): " + e.message
+        e.message = "Error occured in dropTables() -> " + e.message
         throw e
     }
 }
@@ -46,7 +46,7 @@ const createTable = async () => {
             );
         `)
     } catch (e) {
-        e.message = "Error occured in createTable(): " + e.message
+        e.message = "Error occured in createTable() -> " + e.message
         throw e
     }
 }
@@ -67,7 +67,7 @@ const createViews = async () => {
             FROM anbar;
         `)
     } catch (e) {
-        e.message = "Error occured in createViews(): " + e.message
+        e.message = "Error occured in createViews() -> " + e.message
         throw e;
     }
 }
