@@ -75,7 +75,6 @@ const createViews = async () => {
 const populateTable = async () => {
     try {
         await mypool.query(`
-        SELECOOO *;
         INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         VALUES 
         ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
@@ -100,7 +99,8 @@ const populateTable = async () => {
         ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
         ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
         ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00'),
-        ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00');
+        ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00'),
+        ('Mexaniki Klaviatura RGB, 'ED', '334', '2021-05-27 11:16+03:00');
         `)
     }
     catch (e) {
