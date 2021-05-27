@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const bcrypt = require('bcrypt')
+const bcryptjs = require('bcryptjs')
 const validinfo = require('../middleware/validinfo')
 const jwtGenerator = require('../utils/jwtGenerator')
 const { mypool } = require('../db/db_conn')
@@ -15,8 +15,8 @@ router.post('/register', validinfo, async (req, res) => {
             return res.status(401).json({ msg: "User already exist!" })
         }
 
-        const salt = await bcrypt.genSalt(10)
-        const bcryptPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10)
+        const bcryptPassword = await bcryptjs.hash(password, salt);
 
         let newUser = await mypool.query(`INSERT INTO users (user_name, user_email, user_password) VALUES ($1, $2, $3) RETURNING *`, [name, email, bcryptPassword])
         const jwtToken = jwtGenerator(newUser.rows[0].user_id)
@@ -38,7 +38,7 @@ router.post('/login', validinfo, async (req, res) => {
             return res.status(401).json("Invalid credential")
         }
 
-        const validPassword = await bcrypt.compare(password, user.rows[0].user_password);
+        const validPassword = await bcryptjs.compare(password, user.rows[0].user_password);
 
         if (!validPassword) {
             return res.status(401).json("Invalid credential")
