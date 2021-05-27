@@ -25,6 +25,7 @@ const dropViews = async () => {
 const dropTables = async () => {
     try {
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
+        await mypool.query(`DROP TABLE IF EXISTS users;`)
     }
     catch (e) {
         e.message = "Error occured in dropTables() -> " + e.message
@@ -32,7 +33,7 @@ const dropTables = async () => {
     }
 }
 
-const createTable = async () => {
+const createTables = async () => {
     try {
         await mypool.query(`
         CREATE TABLE anbar(
@@ -43,6 +44,16 @@ const createTable = async () => {
             anbar_tarix TIMESTAMPTZ NOT NULL,
             baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
             PRIMARY KEY(mehsul_id)
+            );
+        `)
+        await mypool.query(`
+        CREATE TABLE users(
+            user_id BIGINT GENERATED ALWAYS AS IDENTITY,
+            user_name VARCHAR(255) NOT NULL,
+            user_email VARCHAR(255) NOT NULL,
+            user_password VARCHAR(255) NOT NULL,
+            PRIMARY KEY (user_id),
+            UNIQUE (user_email)
             );
         `)
     } catch (e) {
@@ -72,7 +83,7 @@ const createViews = async () => {
     }
 }
 
-const populateTable = async () => {
+const populateTables = async () => {
     try {
         await mypool.query(`
         INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
@@ -114,9 +125,9 @@ const prepareDb = async () => {
     try {
         await dropViews();
         await dropTables();
-        await createTable();
+        await createTables();
         await createViews();
-        await populateTable();
+        await populateTables();
     }
     catch (e) {
         throw new Error(`Database preparation failed -> ${e.message}`)
