@@ -4,9 +4,9 @@ const cors = require('cors');
 const { prepareDb } = require('./db/db_conn')
 
 // Routers
-const userAuth = require('./router/userAuth.js');
-const Anbar_IN = require('./router/Anbar_IN_Router.js');
-const Anbar_OUT = require('./router/Anbar_OUT_Router.js');
+const userAuth = require('./router/userAuth');
+const Anbar_IN = require('./router/inbound_operations');
+const Anbar_OUT = require('./router/outbound_operations');
 
 const app = express();
 
