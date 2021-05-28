@@ -15,8 +15,8 @@ router.post('/register', validinfo, async (req, res) => {
             return res.status(401).json({ msg: "User already exist!" })
         }
 
-        const salt = await bcryptjs.genSalt(10)
-        const bcryptPassword = await bcryptjs.hash(password, salt);
+        const salt = bcryptjs.genSaltSync(10)
+        const bcryptPassword = bcryptjs.hashSync(password, salt);
 
         let newUser = await mypool.query(`INSERT INTO users (user_name, user_email, user_password) VALUES ($1, $2, $3) RETURNING *`, [name, email, bcryptPassword])
         const jwtToken = jwtGenerator(newUser.rows[0].user_id)
@@ -35,15 +35,15 @@ router.post('/login', validinfo, async (req, res) => {
     try {
         const user = await mypool.query(`SELECT * FROM users WHERE user_email = $1`, [email])
         if (!user.rows.length) {
-            return res.status(401).json("Invalid credential")
+            return res.status(401).json("User not found")
         }
 
-        const validPassword = await bcryptjs.compare(password, user.rows[0].user_password);
+        const validPassword = bcryptjs.compareSync(password, user.rows[0].user_password);
 
         if (!validPassword) {
             return res.status(401).json("Invalid credential")
         }
-        const jwtToken = jwtGenerator(user.rows[0].user_id)
+        const jwtToken = jwtGenerator(user.rows[0].user_id, user.rows[0].user_role)
         return res.json({ jwtToken })
     }
     catch (e) {

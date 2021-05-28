@@ -1,4 +1,5 @@
 const pg = require('pg');
+const hashPass = require('../utils/hashPassword');
 
 connOptions = {
     host: 'db-wavevo.cs4fvunkgxjn.us-east-1.rds.amazonaws.com',
@@ -52,6 +53,7 @@ const createTables = async () => {
             user_name VARCHAR(255) NOT NULL,
             user_email VARCHAR(255) NOT NULL,
             user_password VARCHAR(255) NOT NULL,
+            user_role CHAR(1) NOT NULL,
             PRIMARY KEY (user_id),
             UNIQUE (user_email)
             );
@@ -88,32 +90,43 @@ const populateTables = async () => {
         await mypool.query(`
         INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         VALUES 
-        ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
-        ('LED Lampa 30W', 'ED', 62, '2021-02-19 19:51+04:00'),
-        ('CAT6 STP Kabel', 'MET', 816, '2021-03-11 15:17+04:00'),
-        ('Monitor 24inch', 'ED', 149, '2021-04-16 23:39+00:00'),
-        ('Mouse Wireless Logitech', 'ED', 217, '2021-04-22 18:44+03:00'),
-        ('SATA Cable', 'ED', 113, '2021-04-22 18:44+03:00'),
-        ('Hikvision NVR', 'ED', 566, '2021-04-22 18:44+03:00'),
-        ('Rele 12V', 'ED', 419, '2021-04-22 18:44+03:00'),
-        ('Silikon 500g', 'ED', 225, '2021-04-22 18:44+03:00'),
-        ('Zajim Balaca', 'ED', 176, '2021-04-22 18:44+03:00'),
-        ('Uqolnik', 'ED', 441, '2021-04-22 18:44+03:00'),
-        ('SC-SC Patch Cord', 'ED', 319, '2021-04-22 18:44+03:00'),
-        ('Mikrotik RB2011UAS', 'ED', 886, '2021-04-22 18:44+03:00'),
-        ('TP-Link Wifi Router', 'ED', 170, '2021-04-22 18:44+03:00'),
-        ('Cisco Switch 24 Port', 'ED', 802, '2021-04-22 18:44+03:00'),
-        ('Hytera PNC 370', 'ED', 228, '2021-04-22 18:44+03:00'),
-        ('USB Flash 16Gb', 'ED', 105, '2021-04-22 18:44+03:00'),
-        ('TP-Link 4port Mbit Switch', 'ED', 939, '2021-04-22 18:44+03:00'),
-        ('Fluke Digital Multimeter', 'ED', 300, '2021-04-22 18:44+03:00'),
-        ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
-        ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
-        ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00'),
-        ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00'),
-        ('Mexaniki Klaviatura RGB', 'ED', 334, '2021-05-27 11:16+03:00'),
-        ('JBL Headphone Wireless', 'ED', 49, '2021-05-27T23:35Z');
-        `)
+            ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
+            ('LED Lampa 30W', 'ED', 62, '2021-02-19 19:51+04:00'),
+            ('CAT6 STP Kabel', 'MET', 816, '2021-03-11 15:17+04:00'),
+            ('Monitor 24inch', 'ED', 149, '2021-04-16 23:39+00:00'),
+            ('Mouse Wireless Logitech', 'ED', 217, '2021-04-22 18:44+03:00'),
+            ('SATA Cable', 'ED', 113, '2021-04-22 18:44+03:00'),
+            ('Hikvision NVR', 'ED', 566, '2021-04-22 18:44+03:00'),
+            ('Rele 12V', 'ED', 419, '2021-04-22 18:44+03:00'),
+            ('Silikon 500g', 'ED', 225, '2021-04-22 18:44+03:00'),
+            ('Zajim Balaca', 'ED', 176, '2021-04-22 18:44+03:00'),
+            ('Uqolnik', 'ED', 441, '2021-04-22 18:44+03:00'),
+            ('SC-SC Patch Cord', 'ED', 319, '2021-04-22 18:44+03:00'),
+            ('Mikrotik RB2011UAS', 'ED', 886, '2021-04-22 18:44+03:00'),
+            ('TP-Link Wifi Router', 'ED', 170, '2021-04-22 18:44+03:00'),
+            ('Cisco Switch 24 Port', 'ED', 802, '2021-04-22 18:44+03:00'),
+            ('Hytera PNC 370', 'ED', 228, '2021-04-22 18:44+03:00'),
+            ('USB Flash 16Gb', 'ED', 105, '2021-04-22 18:44+03:00'),
+            ('TP-Link 4port Mbit Switch', 'ED', 939, '2021-04-22 18:44+03:00'),
+            ('Fluke Digital Multimeter', 'ED', 300, '2021-04-22 18:44+03:00'),
+            ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
+            ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
+            ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00'),
+            ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00'),
+            ('Mexaniki Klaviatura RGB', 'ED', 334, '2021-05-27 11:16+03:00'),
+            ('JBL Headphone Wireless', 'ED', 49, '2021-05-27T23:35Z');
+        `);
+
+        await mypool.query(`
+        INSERT INTO users(user_name, user_email, user_password, user_role)
+        VALUES 
+            ('David Clarke', 'daclarke@gmail.com', $1, 'A'),
+            ('Paul Timber', 'paultim701@outlook.com', $2, 'S'),
+            ('Matt Williams', 'willimatt3@hotmail.com', $3, 'G');
+        `, [
+            hashPass('apple123'),
+            hashPass('timoo909'),
+            hashPass('cow44cool')])
     }
     catch (e) {
         e.message = "Error occured in populateTable() -> " + e.message

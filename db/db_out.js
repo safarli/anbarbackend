@@ -1,12 +1,18 @@
 const { mypool } = require('./db_conn.js');
 
 const getAll = async (req, res) => {
+    let {role} = req.user
+    role = role.replace(/\s+/g, '')
+
     try {
+        if (role !== "A") {
+            return res.status(401).json({ msg: "Only admin users can access all items!" })
+        }
         const { rows } = await mypool.query(`SELECT * FROM selectall_baku`)
         res.status(200).send(rows);
     }
     catch (e) {
-        throw new Error(`Error occured while selecting all records in Baku timezone ${e}`)
+        throw new Error(`Error occured while selecting all records in Baku timezone: ${e.message}`)
     }
 }
 
@@ -18,7 +24,7 @@ const getById = async (req, res) => {
         res.status(200).send(rows)
     }
     catch (e) {
-        throw new Error(`Error occured while selecting: ${e}`)
+        throw new Error(`Error occured while selecting: ${e.message}`)
     }
 }
 
@@ -31,7 +37,7 @@ const getByTimeInterval = async (req, res) => {
         res.status(200).send(rows);
     }
     catch (e) {
-        throw new Error(`Error occured while selecting by time interval ${e}`)
+        throw new Error(`Error occured while selecting by time interval: ${e.message}`)
     }
 }
 

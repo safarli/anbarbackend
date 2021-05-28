@@ -1,0 +1,13 @@
+- Attaching roles to users
+- Redirecting to the login page, when jwt token authorization failed
+- Implementing login system at frontend
+
+- User roles:
+# be careful when using char type column for storing user roles, because if you choose CHAR(10) as type, suppose 'admin' added as record and 5 Char will padded empty
+    * a: admin
+    * s: standart
+    * g: guest
+    
+    - admin (Deposit, Withdraw, Remove operations against inventory)
+    - standart (Deposit and Withdraw operations allowed)
+    - guest (Only reading allowed)
