@@ -8,10 +8,15 @@ const roleMessages = {
 }
 
 exports.getProductTypes = async (req, res) => {
-    // let { role } = req.user
-    // if (isStandartUser(role)) {
-    //     return res.status(401).json({ msg: roleMessages.standard })
+    const {user} = req
+
+    // if(!user) {  // Always check if the value is truthy before accessing its properties. Never try to access property of undefined object. It will throw error
+    //     return res.status(401).json({msg: "No user data found in token"})
     // }
+    // else if(!isAdminUser(user.role)){
+    //     return res.status(401).json({msg: "Admin users can access"})
+    // }
+
     try {
         const { rows } = await mypool.query(`SELECT * FROM mehsul_tipleri`)
         return res.status(200).json(rows);
@@ -24,10 +29,15 @@ exports.getProductTypes = async (req, res) => {
 }
 
 exports.getProductProviders = async (req, res) => {
-    // const { role } = req.user
-    // if (isAdminUser(role)) {
-    //     return res.status(401).json({ msg: roleMessages.admin })
+    const {user} = req
+
+    // if(!user){
+    //     res.status(401).json({msg: "No user data found in token"})
     // }
+    // else if (!isAdminUser(user.role)){
+    //     res.status(401).json({msg: "Admin users can access"})
+    // }
+    
     try {
         const { rows } = await mypool.query(`SELECT * FROM saticilar`)
         return res.status(200).json(rows)
@@ -40,10 +50,15 @@ exports.getProductProviders = async (req, res) => {
 }
 
 exports.getProducts = async (req, res) => {
-    const { role } = req.user
-    if (isStandartUser(role)) {
-        return res.status(401).json({ msg: "Only standard users can access all items!" })
-    }
+    const { user } = req
+
+    // if (!user) { 
+    //     return res.status(401).json({ msg: "No user data found in token!" })
+    // }
+    // else if (!isStandartUser(user.role)) {
+    //     return res.status(401).json({ msg: "Standard users can access"})
+    // }
+
     try {
         const { rows } = await mypool.query(`SELECT * FROM anbar`)
         res.status(200).json(rows);

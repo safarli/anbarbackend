@@ -11,3 +11,6 @@
     - admin (Deposit, Withdraw, Remove operations against inventory)
     - standart (Deposit and Withdraw operations allowed)
     - guest (Only reading allowed)
+
+
+- Never try to access property of undefined object. It will throw error. Always check if value is truthy before accessing its properties
