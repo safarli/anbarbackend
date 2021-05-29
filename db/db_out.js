@@ -54,19 +54,6 @@ exports.getProducts = async (req, res) => {
     }
 }
 
-exports.getProductById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const { rows } = await mypool.query(`SELECT * FROM anbar WHERE id = $1`, [id])
-        res.status(200).json(rows)
-    }
-    catch (e) {
-        res.status(500).json({ "error": e.message })
-        throw e.message;
-    }
-}
-
 exports.getProductsByTimeInterval = async (req, res) => {
     const { startDate, endDate } = req.body;
     console.log(`START DATE: ${startDate}  END DATE: ${endDate}`)
