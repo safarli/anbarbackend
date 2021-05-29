@@ -11,6 +11,16 @@ connOptions = {
 
 const mypool = new pg.Pool(connOptions)
 
+const createExtensions = async () => {
+    try {
+        await mypool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+    }
+    catch (e) {
+        e.message = "Error occured in createExtensions() -> " + e.message;
+        throw e;
+    }
+}
+
 const dropViews = async () => {
     try {
         await mypool.query(`
@@ -27,6 +37,8 @@ const dropTables = async () => {
     try {
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
         await mypool.query(`DROP TABLE IF EXISTS users;`)
+        await mypool.query(`DROP TABLE IF EXISTS saticilar`)
+        await mypool.query(`DROP TABLE IF EXISTS mehsul_tipleri`)
     }
     catch (e) {
         e.message = "Error occured in dropTables() -> " + e.message
@@ -37,27 +49,47 @@ const dropTables = async () => {
 const createTables = async () => {
     try {
         await mypool.query(`
-        CREATE TABLE anbar(
-            mehsul_id BIGINT GENERATED ALWAYS AS IDENTITY,
-            mehsul_adi VARCHAR(300) NOT NULL,
-            mehsul_vahidi CHAR(3) NOT NULL,
-            mehsul_miqdar INT NOT NULL,
-            anbar_tarix TIMESTAMPTZ NOT NULL,
-            baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-            PRIMARY KEY(mehsul_id)
-            );
-        `)
-        await mypool.query(`
         CREATE TABLE users(
-            user_id BIGINT GENERATED ALWAYS AS IDENTITY,
+            user_id uuid DEFAULT uuid_generate_v4(),
             user_name VARCHAR(255) NOT NULL,
             user_email VARCHAR(255) NOT NULL,
             user_password VARCHAR(255) NOT NULL,
             user_role CHAR(1) NOT NULL,
             PRIMARY KEY (user_id),
-            UNIQUE (user_email)
+            UNIQUE (user_email));
+        `)
+        await mypool.query(`
+        CREATE TABLE saticilar(
+            satici_id uuid DEFAULT uuid_generate_v4(),
+            satici_adi VARCHAR(255) NOT NULL,
+            PRIMARY KEY(satici_id),
+            UNIQUE(satici_adi));
+        `)
+        await mypool.query(`
+        CREATE TABLE mehsul_tipleri(
+            mehsultipi_id uuid DEFAULT uuid_generate_v4(),
+            mehsultipi VARCHAR(255) NOT NULL,
+            PRIMARY KEY(mehsultipi_id),
+            UNIQUE(mehsultipi));
+        `)
+        await mypool.query(`
+        CREATE TABLE anbar(
+            mehsul_id uuid DEFAULT uuid_generate_v4(),
+            mehsultipi_id uuid NOT NULL,
+            satici_id uuid NOT NULL,
+            mehsul_vahidi CHAR(3) NOT NULL,
+            mehsul_miqdar INT NOT NULL,
+            anbar_tarix DATE NOT NULL,
+            baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+            PRIMARY KEY(mehsul_id),
+            UNIQUE(mehsultipi_id),
+            CONSTRAINT fk_mehsultipi
+                FOREIGN KEY(mehsultipi_id) REFERENCES mehsul_tipleri(mehsultipi_id),
+            CONSTRAINT fk_satici
+                FOREIGN KEY(satici_id) REFERENCES saticilar(satici_id)
             );
         `)
+
     } catch (e) {
         e.message = "Error occured in createTable() -> " + e.message
         throw e
@@ -66,19 +98,19 @@ const createTables = async () => {
 
 const createViews = async () => {
     try {
-        await mypool.query(`
-        CREATE VIEW selectall_baku AS
-            SELECT mehsul_id AS id, mehsul_adi AS ad, mehsul_vahidi AS vahid, mehsul_miqdar AS miqdar, 
-            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS anbar_tarix,
-            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS baza_tarix
-            FROM anbar;
+        // await mypool.query(`
+        // CREATE VIEW selectall_baku AS
+        //     SELECT mehsul_id AS id, mehsul_adi AS ad, mehsul_vahidi AS vahid, mehsul_miqdar AS miqdar, 
+        //     (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS anbar_tarix,
+        //     (baza_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS baza_tarix
+        //     FROM anbar;
 
-        CREATE VIEW selectall_istanbul AS
-            SELECT mehsul_id as id, mehsul_adi as ad, mehsul_vahidi as vahid, mehsul_miqdar as miqdar, 
-            (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
-            (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
-            FROM anbar;
-        `)
+        // CREATE VIEW selectall_istanbul AS
+        //     SELECT mehsul_id as id, mehsul_adi as ad, mehsul_vahidi as vahid, mehsul_miqdar as miqdar, 
+        //     (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
+        //     (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
+        //     FROM anbar;
+        // `)
     } catch (e) {
         e.message = "Error occured in createViews() -> " + e.message
         throw e;
@@ -87,36 +119,6 @@ const createViews = async () => {
 
 const populateTables = async () => {
     try {
-        await mypool.query(`
-        INSERT INTO anbar(mehsul_adi, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
-        VALUES 
-            ('USB Type-C Kabel 1.5M', 'ED', 215, '2021-02-14 14:36+04:00'),
-            ('LED Lampa 30W', 'ED', 62, '2021-02-19 19:51+04:00'),
-            ('CAT6 STP Kabel', 'MET', 816, '2021-03-11 15:17+04:00'),
-            ('Monitor 24inch', 'ED', 149, '2021-04-16 23:39+00:00'),
-            ('Mouse Wireless Logitech', 'ED', 217, '2021-04-22 18:44+03:00'),
-            ('SATA Cable', 'ED', 113, '2021-04-22 18:44+03:00'),
-            ('Hikvision NVR', 'ED', 566, '2021-04-22 18:44+03:00'),
-            ('Rele 12V', 'ED', 419, '2021-04-22 18:44+03:00'),
-            ('Silikon 500g', 'ED', 225, '2021-04-22 18:44+03:00'),
-            ('Zajim Balaca', 'ED', 176, '2021-04-22 18:44+03:00'),
-            ('Uqolnik', 'ED', 441, '2021-04-22 18:44+03:00'),
-            ('SC-SC Patch Cord', 'ED', 319, '2021-04-22 18:44+03:00'),
-            ('Mikrotik RB2011UAS', 'ED', 886, '2021-04-22 18:44+03:00'),
-            ('TP-Link Wifi Router', 'ED', 170, '2021-04-22 18:44+03:00'),
-            ('Cisco Switch 24 Port', 'ED', 802, '2021-04-22 18:44+03:00'),
-            ('Hytera PNC 370', 'ED', 228, '2021-04-22 18:44+03:00'),
-            ('USB Flash 16Gb', 'ED', 105, '2021-04-22 18:44+03:00'),
-            ('TP-Link 4port Mbit Switch', 'ED', 939, '2021-04-22 18:44+03:00'),
-            ('Fluke Digital Multimeter', 'ED', 300, '2021-04-22 18:44+03:00'),
-            ('Arduino Board AVR328p Switch 24 Port', 'ED', 581, '2021-04-22 18:44+03:00'),
-            ('LED 5mm Blue', 'ED', 866, '2021-04-22 18:44+03:00'),
-            ('RAM GSKILL 16gb(8x2) 2400MHz', 'ED', 369, '2021-04-22 18:44+03:00'),
-            ('Yealink T19 E2', 'ED', 112, '2021-05-26 17:10+03:00'),
-            ('Mexaniki Klaviatura RGB', 'ED', 334, '2021-05-27 11:16+03:00'),
-            ('JBL Headphone Wireless', 'ED', 49, '2021-05-27T23:35Z');
-        `);
-
         await mypool.query(`
         INSERT INTO users(user_name, user_email, user_password, user_role)
         VALUES 
@@ -127,6 +129,37 @@ const populateTables = async () => {
             hashPass('apple123'),
             hashPass('timoo909'),
             hashPass('cow44cool')])
+
+        await mypool.query(`
+        INSERT INTO mehsul_tipleri(mehsultipi)
+        VALUES
+        ('USB Type-C Kabel 1.5M'),
+        ('LED Lampa 30W'),
+        ('CAT6 STP Kabel'),
+        ('Monitor 24inch'),
+        ('Mouse Wireless Logitech');
+        `)
+
+        await mypool.query(`
+        INSERT INTO saticilar(satici_adi)
+        VALUES
+        ('CaspianMMC'),
+        ('Aznetwork'),
+        ('Premier Computers'),
+        ('ABV'),
+        ('Kamera.az'),
+        ('Dahua'),
+        ('Hikvisioin');
+        `)
+
+        await mypool.query(`
+        INSERT INTO anbar(mehsultipi_id, satici_id, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
+        WITH
+            t1 AS (SELECT mehsultipi_id FROM mehsul_tipleri WHERE mehsultipi = 'CAT6 STP Kabel'),
+            t2 AS (SELECT satici_id FROM saticilar WHERE satici_adi = 'ABV') 
+        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
+        `);
+
     }
     catch (e) {
         e.message = "Error occured in populateTable() -> " + e.message
@@ -136,6 +169,7 @@ const populateTables = async () => {
 
 const prepareDb = async () => {
     try {
+        await createExtensions();
         await dropViews();
         await dropTables();
         await createTables();

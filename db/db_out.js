@@ -1,34 +1,73 @@
-const { mypool } = require('./db_conn.js');
+const { mypool } = require('./db_conn');
+const { isAdminUser, isStandartUser, isGuestUser } = require('../utils/roleChecker')
 
-const getAll = async (req, res) => {
-    let {role} = req.user
-    role = role.replace(/\s+/g, '')
+const roleMessages = {
+    admin: "Only admin users can accesss",
+    standard: "Only standard users can access",
+    guest: "You are not allowed here as a guest user"
+}
 
+exports.getProductTypes = async (req, res) => {
+    // let { role } = req.user
+    // if (isStandartUser(role)) {
+    //     return res.status(401).json({ msg: roleMessages.standard })
+    // }
     try {
-        if (role !== "A") {
-            return res.status(401).json({ msg: "Only admin users can access all items!" })
-        }
-        const { rows } = await mypool.query(`SELECT * FROM selectall_baku`)
-        res.status(200).send(rows);
+        const { rows } = await mypool.query(`SELECT * FROM mehsul_tipleri`)
+        return res.status(200).json(rows);
     }
     catch (e) {
-        throw new Error(`Error occured while selecting all records in Baku timezone: ${e.message}`)
+        res.status(500).json({ "error": e.message })
+        throw e.message;
+    }
+
+}
+
+exports.getProductProviders = async (req, res) => {
+    // const { role } = req.user
+    // if (isAdminUser(role)) {
+    //     return res.status(401).json({ msg: roleMessages.admin })
+    // }
+    try {
+        const { rows } = await mypool.query(`SELECT * FROM saticilar`)
+        return res.status(200).json(rows)
+    }
+    catch (e) {
+        res.status(500).json({ "error": e.message })
+        throw e.message;
+    }
+
+}
+
+exports.getProducts = async (req, res) => {
+    const { role } = req.user
+    if (isStandartUser(role)) {
+        return res.status(401).json({ msg: "Only standard users can access all items!" })
+    }
+    try {
+        const { rows } = await mypool.query(`SELECT * FROM anbar`)
+        res.status(200).json(rows);
+    }
+    catch (e) {
+        res.status(500).json({ "error": e.message })
+        throw e.message;
     }
 }
 
-const getById = async (req, res) => {
+exports.getProductById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const { rows } = await mypool.query(`SELECT * FROM selectall_baku WHERE id = $1`, [id])
-        res.status(200).send(rows)
+        const { rows } = await mypool.query(`SELECT * FROM anbar WHERE id = $1`, [id])
+        res.status(200).json(rows)
     }
     catch (e) {
-        throw new Error(`Error occured while selecting: ${e.message}`)
+        res.status(500).json({ "error": e.message })
+        throw e.message;
     }
 }
 
-const getByTimeInterval = async (req, res) => {
+exports.getProductsByTimeInterval = async (req, res) => {
     const { startDate, endDate } = req.body;
     console.log(`START DATE: ${startDate}  END DATE: ${endDate}`)
 
@@ -37,12 +76,7 @@ const getByTimeInterval = async (req, res) => {
         res.status(200).send(rows);
     }
     catch (e) {
-        throw new Error(`Error occured while selecting by time interval: ${e.message}`)
+        res.status(500).json({ "error": e.message })
+        throw e.message;
     }
-}
-
-module.exports = {
-    getAll,
-    getById,
-    getByTimeInterval,
 }
