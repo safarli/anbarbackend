@@ -4,6 +4,7 @@ const authorize = require('../middleware/authorize');
 
 const router = Router();
 
-router.post('/mehsul', authorize, insertItem);
+// router.post('/mehsul', authorize, insertItem);
+router.post('/product', insertItem);
 
 module.exports = router;
