@@ -82,7 +82,7 @@ const createTables = async () => {
             anbar_tarix DATE NOT NULL,
             baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
             PRIMARY KEY(mehsul_id),
-            UNIQUE(mehsultipi_id),
+            UNIQUE(mehsultipi_id, satici_id),
             CONSTRAINT fk_mehsultipi
                 FOREIGN KEY(mehsultipi_id) REFERENCES mehsul_tipleri(mehsultipi_id),
             CONSTRAINT fk_satici
