@@ -60,7 +60,7 @@ exports.getProducts = async (req, res) => {
     // }
 
     try {
-        const { rows } = await mypool.query(`SELECT * FROM anbar`)
+        const { rows } = await mypool.query(`SELECT * FROM view_all`)
         res.status(200).json(rows);
     }
     catch (e) {
