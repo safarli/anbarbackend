@@ -24,8 +24,7 @@ const createExtensions = async () => {
 const dropViews = async () => {
     try {
         await mypool.query(`
-            DROP VIEW IF EXISTS selectall_baku;
-            DROP VIEW IF EXISTS selectall_istanbul;
+            DROP VIEW IF EXISTS view_all;
         `)
     } catch (e) {
         e.message = "Error occured in dropViews() -> " + e.message
@@ -82,7 +81,7 @@ const createTables = async () => {
             anbar_tarix DATE NOT NULL,
             baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
             PRIMARY KEY(mehsul_id),
-            UNIQUE(mehsultipi_id, satici_id),
+            CONSTRAINT unique_product_per_provider UNIQUE(mehsultipi_id, satici_id),
             CONSTRAINT fk_mehsultipi
                 FOREIGN KEY(mehsultipi_id) REFERENCES mehsul_tipleri(mehsultipi_id),
             CONSTRAINT fk_satici
@@ -98,19 +97,16 @@ const createTables = async () => {
 
 const createViews = async () => {
     try {
-        // await mypool.query(`
-        // CREATE VIEW selectall_baku AS
-        //     SELECT mehsul_id AS id, mehsul_adi AS ad, mehsul_vahidi AS vahid, mehsul_miqdar AS miqdar, 
-        //     (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS anbar_tarix,
-        //     (baza_tarix::timestamptz AT TIME ZONE 'Asia/Baku')::text AS baza_tarix
-        //     FROM anbar;
-
-        // CREATE VIEW selectall_istanbul AS
-        //     SELECT mehsul_id as id, mehsul_adi as ad, mehsul_vahidi as vahid, mehsul_miqdar as miqdar, 
-        //     (anbar_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS anbar_tarix,
-        //     (baza_tarix::timestamptz AT TIME ZONE 'Asia/Istanbul')::text AS baza_tarix
-        //     FROM anbar;
-        // `)
+        await mypool.query(`
+            CREATE VIEW view_all
+            AS
+                SELECT mt.mehsultipi, st.satici_adi, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
+                FROM anbar an
+                INNER JOIN mehsul_tipleri mt
+                    ON an.mehsultipi_id = mt.mehsultipi_id
+                INNER JOIN saticilar st
+                    ON an.satici_id = st.satici_id;
+        `)
     } catch (e) {
         e.message = "Error occured in createViews() -> " + e.message
         throw e;
