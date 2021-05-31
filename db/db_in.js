@@ -11,7 +11,7 @@ const insertItem = async (req, res) => {
             VALUES
             ($1, $2, $3, $4, $5, $6) RETURNING *;`, [mehsultipi_id, satici_id, nomre, vahid, miqdar, tarix]);
 
-        res.status(200).json({msg: "Product added " + result.rows})
+        res.status(200).json({msg: "Product added " + result.rows[0]})
     }
     catch (e) {
         console.log(e.message)
