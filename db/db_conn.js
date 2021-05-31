@@ -131,6 +131,12 @@ const populateTables = async () => {
         INSERT INTO mehsul_tipleri(mehsultipi)
         VALUES
         ('USB Type-C Kabel 1.5M'),
+        ('Yealink SIP Telefon T19 E2'),
+        ('Elektrik Karobkasi 30mmX45mm'),
+        ('Rele 12V'),
+        ('Rele 24V'),
+        ('TV 50inch'),
+        ('Wifi Router TP-Link'),
         ('LED Lampa 30W'),
         ('CAT6 STP Kabel'),
         ('Monitor 24inch'),
@@ -140,13 +146,16 @@ const populateTables = async () => {
         await mypool.query(`
         INSERT INTO saticilar(satici_adi)
         VALUES
-        ('CaspianMMC'),
-        ('Aznetwork'),
+        ('Orbita MMC'),
+        ('Amper MMC'),
+        ('Araznet MMC'),
         ('Premier Computers'),
         ('ABV'),
-        ('Kamera.az'),
+        ('Iman-N MMC'),
+        ('Metak'),
         ('Dahua'),
-        ('Hikvisioin');
+        ('Hikvision'),
+        ('Xeyal MMC');
         `)
 
         await mypool.query(`
