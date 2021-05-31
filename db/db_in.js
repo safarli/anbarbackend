@@ -9,9 +9,9 @@ const insertItem = async (req, res) => {
         const result = await mypool.query(`
             INSERT INTO anbar(mehsultipi_id, satici_id, nomre, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
             VALUES
-            ($1, $2, $3, $4, $5, $6) RETURNING *;`, [mehsultipi_id, satici_id, nomre, vahid, miqdar, tarix]);
+            ($1, $2, $3, $4, $5, $6) RETURNING mehsul_id;`, [mehsultipi_id, satici_id, nomre, vahid, miqdar, tarix]);
 
-        res.status(200).json({msg: "Product added " + result.rows[0]})
+        res.status(200).send("Product added " + result.rows[0])
     }
     catch (e) {
         console.log(e.message)
