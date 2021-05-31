@@ -76,6 +76,7 @@ const createTables = async () => {
             mehsul_id uuid DEFAULT uuid_generate_v4(),
             mehsultipi_id uuid NOT NULL,
             satici_id uuid NOT NULL,
+            nomre INT NOT NULL,
             mehsul_vahidi CHAR(3) NOT NULL,
             mehsul_miqdar INT NOT NULL,
             anbar_tarix DATE NOT NULL,
@@ -100,7 +101,7 @@ const createViews = async () => {
         await mypool.query(`
             CREATE VIEW view_all
             AS
-                SELECT mt.mehsultipi, st.satici_adi, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
+                SELECT mt.mehsultipi, st.satici_adi,an.nomre, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
                 FROM anbar an
                 INNER JOIN mehsul_tipleri mt
                     ON an.mehsultipi_id = mt.mehsultipi_id
@@ -149,11 +150,11 @@ const populateTables = async () => {
         `)
 
         await mypool.query(`
-        INSERT INTO anbar(mehsultipi_id, satici_id, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
+        INSERT INTO anbar(mehsultipi_id, satici_id,nomre, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         WITH
             t1 AS (SELECT mehsultipi_id FROM mehsul_tipleri WHERE mehsultipi = 'CAT6 STP Kabel'),
             t2 AS (SELECT satici_id FROM saticilar WHERE satici_adi = 'ABV') 
-        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
+        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 194, 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
         `);
 
     }
