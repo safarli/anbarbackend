@@ -2,7 +2,8 @@ const { Router } = require('express');
 const bcryptjs = require('bcryptjs')
 const validinfo = require('../middleware/validinfo')
 const jwtGenerator = require('../utils/jwtGenerator')
-const { mypool } = require('../db/db_conn')
+const { mypool } = require('../db/db_conn');
+const authorize = require('../middleware/authorize');
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.post('/register', validinfo, async (req, res) => {
         const salt = bcryptjs.genSaltSync(10)
         const bcryptPassword = bcryptjs.hashSync(password, salt);
 
-        let newUser = await mypool.query(`INSERT INTO users (user_name, user_email, user_password) VALUES ($1, $2, $3) RETURNING *`, [name, email, bcryptPassword])
+        let newUser = await mypool.query(`INSERT INTO users (user_name, user_email, user_password, user_role) VALUES ($1, $2, $3, 'A') RETURNING *;`, [name, email, bcryptPassword])
         const jwtToken = jwtGenerator(newUser.rows[0].user_id)
 
         return res.json({ jwtToken })
@@ -53,8 +54,8 @@ router.post('/login', validinfo, async (req, res) => {
 
 })
 
-router.post('/signout', async (req, res) => {
-
+router.post('/verify', authorize, async (req, res) => {
+    res.status(200).json({msg: true});
 })
 
 module.exports = router;

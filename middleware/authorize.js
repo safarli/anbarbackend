@@ -18,7 +18,7 @@ module.exports = function (req, res, next) {
     }
 
     try {
-        const verify = jwt.verify(authToken, process.env.jwtSecret);
+        const verify = jwt.verify(authToken, process.env.jwtSecret); // if jwt verification fails, verify() will throw error, so next() will not be executed
         req.user = verify.user;
         next()
     }
