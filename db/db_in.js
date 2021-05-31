@@ -7,7 +7,7 @@ const insertItem = async (req, res) => {
 
     try {
         const result = await mypool.query(`
-            INSERT INTO anbar(mehsultipi_id, satici_id, nomre,  mehsul_vahidi, mehsul_miqdar, anbar_tarix)
+            INSERT INTO anbar(mehsultipi_id, satici_id, nomre, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
             VALUES
             ($1, $2, $3, $4, $5) RETURNING *;`, [mehsultipi_id, satici_id, nomre, vahid, miqdar, tarix]);
 
