@@ -17,6 +17,6 @@ exports.stockOut = async (req, res) => {   // Anbar Mexaric
     }
     catch(e){
         console.log(e)
-        res.status(406).send('Error occured')
+        res.status(406).send(e.message)
     }
 }
