@@ -9,8 +9,6 @@ const roleMessages = {
 
 exports.stockOut = async (req, res) => {   // Anbar Mexaric
     const {mehsul_id, miqdar} = req.body;
-    console.log(mehsulId);
-    console.log(miqdar);
 
     try{
         const {rows} = await mypool.query(`UPDATE anbar SET mehsul_miqdar = mehsul_miqdar - $1 WHERE mehsul_id = $2 RETURNING *;`, [miqdar, mehsul_id])
