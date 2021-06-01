@@ -101,7 +101,7 @@ const createViews = async () => {
         await mypool.query(`
             CREATE VIEW view_all
             AS
-                SELECT mt.mehsultipi, st.satici_adi,an.nomre, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
+                SELECT an.mehsul_id, mt.mehsultipi, st.satici_adi,an.nomre, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
                 FROM anbar an
                 INNER JOIN mehsul_tipleri mt
                     ON an.mehsultipi_id = mt.mehsultipi_id
