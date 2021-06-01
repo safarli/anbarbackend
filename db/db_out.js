@@ -7,6 +7,10 @@ const roleMessages = {
     guest: "You are not allowed here as a guest user"
 }
 
+exports.stockOut = async (req, res) => {   // Anbar Mexaric
+
+}
+
 exports.getProductTypes = async (req, res) => {
     const {user} = req
 

@@ -1,6 +1,6 @@
 const { mypool } = require('./db_conn');
 
-const insertItem = async (req, res) => {
+exports.stockIn = async (req, res) => {   // Anbar Medaxil
     if (!req.body) return res.status(500).json({ msg: "Request body not found!" })
     const { mehsultipi_id, satici_id,nomre, vahid, miqdar, tarix } = req.body;
     console.log(req.body);
@@ -17,8 +17,4 @@ const insertItem = async (req, res) => {
         console.log(e.message)
         res.status(406).send({message: e.message})
     }
-}
-
-module.exports = {
-    insertItem
 }
