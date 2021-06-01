@@ -11,7 +11,7 @@ exports.stockOut = async (req, res) => {   // Anbar Mexaric
     const {mehsulId, miqdar} = req.body;
 
     try{
-        const {rows} = await mypool.query(`UPDATE anbar SET miqdar = $1 WHERE mehsul_id = $2 RETURNING *;`, [miqdar, mehsulId])
+        const {rows} = await mypool.query(`UPDATE anbar SET mehsul_miqdar = mehsul_miqdar - $1 WHERE mehsul_id = $2 RETURNING *;`, [miqdar, mehsulId])
         res.status(200).send(rows[0])
     }
     catch(e){
