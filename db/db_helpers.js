@@ -41,3 +41,16 @@ exports.getProductProviders = async (req, res) => {
     }
 
 }
+
+exports.addProductType =  async (req, res) => {
+    const {productType} = req.body 
+
+    try{
+        const {rows} = await mypool.query(`INSERT INTO mehsul_tipleri(mehsultipi) VALUES($1)`, [productType])
+        res.status(200).send(rows);
+    }
+    catch(e){
+        res.status(500).send(e);
+        console.log(e)
+    }
+}

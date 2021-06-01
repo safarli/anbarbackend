@@ -5,5 +5,6 @@ const router = Router();
 
 router.get('/providers', dbHelpers.getProductProviders);
 router.get('/producttypes', dbHelpers.getProductTypes);
+router.post('/producttypes', dbHelpers.addProductType);
 
 module.exports = router;
