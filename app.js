@@ -7,6 +7,8 @@ const { prepareDb } = require('./db/db_conn')
 const userAuth = require('./router/userAuth');
 const inRouter = require('./router/in_router');
 const outRouter = require('./router/out_router');
+const helperRouter = require('./router/helper_router')
+const reportsRouter = require('./router/reports_router')
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(express.json())
 app.use('/userauth', userAuth);
 app.use('/anbarin', inRouter);
 app.use('/anbarout', outRouter);
+app.use('/helpers', helperRouter)
+app.use('/reports', reportsRouter)
 // ROUTERS END
 
 app.get('/', (req, res) => {
