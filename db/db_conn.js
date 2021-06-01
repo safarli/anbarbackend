@@ -78,7 +78,7 @@ const createTables = async () => {
             satici_id uuid NOT NULL,
             nomre INT NOT NULL,
             mehsul_vahidi CHAR(3) NOT NULL,
-            mehsul_miqdar INT NOT NULL,
+            mehsul_miqdar INT NOT NULL CHECK(mehsul_miqdar > 0),
             anbar_tarix DATE NOT NULL,
             baza_tarix TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
             PRIMARY KEY(mehsul_id),
