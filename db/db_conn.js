@@ -36,8 +36,9 @@ const dropTables = async () => {
     try {
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
         await mypool.query(`DROP TABLE IF EXISTS users;`)
-        await mypool.query(`DROP TABLE IF EXISTS saticilar`)
-        await mypool.query(`DROP TABLE IF EXISTS mehsul_tipleri`)
+        await mypool.query(`DROP TABLE IF EXISTS saticilar;`)
+        await mypool.query(`DROP TABLE IF EXISTS log_medaxil;`)
+        await mypool.query(`DROP TABLE IF EXISTS mehsul_tipleri;`)
     }
     catch (e) {
         e.message = "Error occured in dropTables() -> " + e.message
