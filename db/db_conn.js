@@ -73,11 +73,22 @@ const createTables = async () => {
             UNIQUE(mehsultipi));
         `)
         await mypool.query(`
+        CREATE TABLE log_medaxil(
+	        log_id UUID DEFAULT uuid_generate_v4(),
+            mehsultipi_id UUID NOT NULL,
+            evvelki_miqdar INT NOT NULL,
+            yeni_miqdar INT NOT NULL,
+            log_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+            PRIMARY KEY(log_id),
+            CONSTRAINT fk_mehsultipi_id
+                FOREIGN KEY(mehsultipi_id) REFERENCES mehsul_tipleri(mehsultipi_id));
+        `);
+        await mypool.query(`
         CREATE TABLE anbar(
             mehsul_id uuid DEFAULT uuid_generate_v4(),
             mehsultipi_id uuid NOT NULL,
             satici_id uuid NOT NULL,
-            nomre INT NOT NULL,
+            saxlanma_yeri VARCHAR(60) NOT NULL,
             mehsul_vahidi CHAR(3) NOT NULL,
             mehsul_miqdar INT NOT NULL CHECK(mehsul_miqdar > 0),
             anbar_tarix DATE NOT NULL,
@@ -96,13 +107,96 @@ const createTables = async () => {
         throw e
     }
 }
+const dropTriggers = async () => {
+    try {
+        await mypool.query(`DROP TRIGGER IF EXISTS trg_mehsul_update ON anbar;`)
+        await mypool.query(`DROP TRIGGER IF EXISTS trg_mehsul_insert ON anbar;`)
+    }
+    catch (e) {
+        e.message = "Error occured in dropTriggers() -> " + e.message
+        throw e
+    }
+}
+
+const createTriggers = async () => {
+    try {
+        await mypool.query(`
+        CREATE TRIGGER trg_mehsul_update
+	        BEFORE UPDATE
+	        ON anbar
+	        FOR EACH ROW
+	        EXECUTE PROCEDURE fnc_log_existing_medaxil();
+        `);
+        await mypool.query(`
+        CREATE TRIGGER trg_mehsul_insert
+            BEFORE INSERT
+            ON anbar
+            FOR EACH ROW
+            EXECUTE PROCEDURE fnc_log_new_medaxil();
+        `);
+    }
+    catch (e) {
+        e.message = "Error occured in createTriggers() -> " + e.message
+        throw e
+    }
+}
+
+const dropFunctions = async () => {
+    try {
+        await mypool.query(`DROP FUNCTION IF EXISTS fnc_log_existing_medaxil;`)
+        await mypool.query(`DROP FUNCTION IF EXISTS fnc_log_new_medaxil;`)
+    }
+    catch (e) {
+        e.message = "Error occured in dropFunctions() -> " + e.message
+        throw e
+    }
+}
+const createFunctions = async () => {
+    try {
+        await mypool.query(`
+        CREATE OR REPLACE FUNCTION fnc_log_existing_medaxil()
+	    RETURNS TRIGGER
+	    LANGUAGE plpgsql
+	    AS
+	    $$
+		BEGIN
+			
+			INSERT INTO log_medaxil(mehsultipi_id, evvelki_miqdar, yeni_miqdar)
+			VALUES (OLD.mehsultipi_id, OLD.mehsul_miqdar, NEW.mehsul_miqdar);
+			
+			RETURN NEW;
+		END;
+	    $$
+	    ;
+        `)
+
+        await mypool.query(`
+        CREATE OR REPLACE FUNCTION fnc_log_new_medaxil()
+	    RETURNS TRIGGER
+	    LANGUAGE plpgsql
+	    AS
+	    $$
+	    BEGIN
+		    INSERT INTO log_medaxil(mehsultipi_id, evvelki_miqdar, yeni_miqdar)
+		    VALUES (NEW.mehsultipi_id, 0::INT, NEW.mehsul_miqdar);
+	        RETURN NEW;
+	    END;
+	    $$
+	    ;
+        `)
+    }
+    catch (e) {
+        e.message = "Error occured in createFunctions() -> " + e.message
+        throw e
+    }
+}
 
 const createViews = async () => {
     try {
         await mypool.query(`
             CREATE VIEW view_all
             AS
-                SELECT an.mehsul_id, mt.mehsultipi, st.satici_adi,an.nomre, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
+                SELECT an.mehsul_id, mt.mehsultipi, st.satici_adi, an.saxlanma_yeri, an.mehsul_vahidi, an.mehsul_miqdar, an.anbar_tarix
                 FROM anbar an
                 INNER JOIN mehsul_tipleri mt
                     ON an.mehsultipi_id = mt.mehsultipi_id
@@ -160,11 +254,11 @@ const populateTables = async () => {
         `)
 
         await mypool.query(`
-        INSERT INTO anbar(mehsultipi_id, satici_id,nomre, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
+        INSERT INTO anbar(mehsultipi_id, satici_id, saxlanma_yeri, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
         WITH
             t1 AS (SELECT mehsultipi_id FROM mehsul_tipleri WHERE mehsultipi = 'CAT6 STP Kabel'),
             t2 AS (SELECT satici_id FROM saticilar WHERE satici_adi = 'ABV') 
-        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 194, 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
+        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 'otaq-1', 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
         `);
 
     }
@@ -178,9 +272,13 @@ const prepareDb = async () => {
     try {
         await createExtensions();
         await dropViews();
+        await dropTriggers();
+        await dropFunctions();
         await dropTables();
         await createTables();
         await createViews();
+        await createFunctions();
+        await createTriggers();
         await populateTables();
     }
     catch (e) {
