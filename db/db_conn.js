@@ -250,16 +250,17 @@ const populateTables = async () => {
         ('Metak'),
         ('Dahua'),
         ('Hikvision'),
-        ('Xeyal MMC');
+        ('Xeyal MMC'),
+        ('Təyin Olunmayıb');
         `)
 
-        await mypool.query(`
-        INSERT INTO anbar(mehsultipi_id, satici_id, saxlanma_yeri, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
-        WITH
-            t1 AS (SELECT mehsultipi_id FROM mehsul_tipleri WHERE mehsultipi = 'CAT6 STP Kabel'),
-            t2 AS (SELECT satici_id FROM saticilar WHERE satici_adi = 'ABV') 
-        SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 'otaq-1', 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
-        `);
+        // await mypool.query(`
+        // INSERT INTO anbar(mehsultipi_id, satici_id, saxlanma_yeri, mehsul_vahidi, mehsul_miqdar, anbar_tarix)
+        // WITH
+        //     t1 AS (SELECT mehsultipi_id FROM mehsul_tipleri WHERE mehsultipi = 'CAT6 STP Kabel'),
+        //     t2 AS (SELECT satici_id FROM saticilar WHERE satici_adi = 'ABV') 
+        // SELECT DISTINCT t1.mehsultipi_id, t2.satici_id, 'otaq-1', 'ED', 135, '2021-05-29'::DATE FROM t1, t2;
+        // `);
 
     }
     catch (e) {
