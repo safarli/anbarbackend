@@ -1,5 +1,16 @@
 const {mypool} = require('./db_conn');
 
+exports.getAnbarLogs = async (req, res) => {
+    try {
+        const {rows} = await mypool.query(`SELECT * FROM view_logs_anbar;`)
+        res.status(200).json(rows);
+    } 
+    catch(e){
+        res.status(500).json({error: e.message})
+        throw e.message;
+    }
+}
+
 exports.getProducts = async (req, res) => {
     const { user } = req
 
@@ -15,7 +26,7 @@ exports.getProducts = async (req, res) => {
         res.status(200).json(rows);
     }
     catch (e) {
-        res.status(500).json({ "error": e.message })
+        res.status(500).json({error: e.message })
         throw e.message;
     }
 }

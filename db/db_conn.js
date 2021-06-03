@@ -23,9 +23,8 @@ const createExtensions = async () => {
 
 const dropViews = async () => {
     try {
-        await mypool.query(`
-            DROP VIEW IF EXISTS view_all;
-        `)
+        await mypool.query(`DROP VIEW IF EXISTS view_all;`)
+        await mypool.query(`DROP VIEW IF EXISTS view_logs_anbar;`)
     } catch (e) {
         e.message = "Error occured in dropViews() -> " + e.message
         throw e
@@ -34,10 +33,11 @@ const dropViews = async () => {
 
 const dropTables = async () => {
     try {
+        await mypool.query(`DROP TABLE IF EXISTS logs_anbar;`)
+        await mypool.query(`DROP TABLE IF EXISTS operations;`)
         await mypool.query(`DROP TABLE IF EXISTS anbar;`)
         await mypool.query(`DROP TABLE IF EXISTS users;`)
         await mypool.query(`DROP TABLE IF EXISTS saticilar;`)
-        await mypool.query(`DROP TABLE IF EXISTS log_medaxil;`)
         await mypool.query(`DROP TABLE IF EXISTS mehsul_tipleri;`)
     }
     catch (e) {
@@ -57,7 +57,13 @@ const createTables = async () => {
             user_role CHAR(1) NOT NULL,
             PRIMARY KEY (user_id),
             UNIQUE (user_email));
-        `)
+        `);
+        await mypool.query(`
+        create table operations(
+	        id INT NOT NULL,
+	        name CHAR(2) NOT NULL,
+	        PRIMARY KEY(id));
+        `);
         await mypool.query(`
         CREATE TABLE saticilar(
             satici_id uuid DEFAULT uuid_generate_v4(),
@@ -72,17 +78,6 @@ const createTables = async () => {
             PRIMARY KEY(mehsultipi_id),
             UNIQUE(mehsultipi));
         `)
-        await mypool.query(`
-        CREATE TABLE log_medaxil(
-	        log_id UUID DEFAULT uuid_generate_v4(),
-            mehsultipi_id UUID NOT NULL,
-            evvelki_miqdar INT NOT NULL,
-            yeni_miqdar INT NOT NULL,
-            log_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-            PRIMARY KEY(log_id),
-            CONSTRAINT fk_mehsultipi_id
-                FOREIGN KEY(mehsultipi_id) REFERENCES mehsul_tipleri(mehsultipi_id));
-        `);
         await mypool.query(`
         CREATE TABLE anbar(
             mehsul_id uuid DEFAULT uuid_generate_v4(),
@@ -100,6 +95,19 @@ const createTables = async () => {
             CONSTRAINT fk_satici
                 FOREIGN KEY(satici_id) REFERENCES saticilar(satici_id)
             );
+        `);
+
+        await mypool.query(`
+            create table logs_anbar(
+	            id BIGINT GENERATED ALWAYS AS IDENTITY,
+	            operation_id INT NOT NULL,
+	            mehsul_id UUID NOT NULL,
+	            old_miqdar INT NOT NULL,
+	            new_miqdar INT NOT NULL,
+	            log_time TIMESTAMPTZ NOT NULL DEFAULT now(),
+	            PRIMARY KEY(id),
+	            CONSTRAINT fk_operation_id FOREIGN KEY(operation_id) REFERENCES operations(id),
+	            CONSTRAINT fk_mehsul_id FOREIGN KEY(mehsul_id) REFERENCES anbar(mehsul_id));
         `)
 
     } catch (e) {
@@ -109,8 +117,7 @@ const createTables = async () => {
 }
 const dropTriggers = async () => {
     try {
-        await mypool.query(`DROP TRIGGER IF EXISTS trg_mehsul_update ON anbar;`)
-        await mypool.query(`DROP TRIGGER IF EXISTS trg_mehsul_insert ON anbar;`)
+        await mypool.query(`DROP TRIGGER IF EXISTS trg_anbar_insert_update on anbar;`);
     }
     catch (e) {
         e.message = "Error occured in dropTriggers() -> " + e.message
@@ -121,19 +128,12 @@ const dropTriggers = async () => {
 const createTriggers = async () => {
     try {
         await mypool.query(`
-        CREATE TRIGGER trg_mehsul_update
-	        BEFORE UPDATE
+            CREATE TRIGGER trg_anbar_insert_update
+	        AFTER INSERT OR UPDATE
 	        ON anbar
 	        FOR EACH ROW
-	        EXECUTE PROCEDURE fnc_log_existing_medaxil();
-        `);
-        await mypool.query(`
-        CREATE TRIGGER trg_mehsul_insert
-            BEFORE INSERT
-            ON anbar
-            FOR EACH ROW
-            EXECUTE PROCEDURE fnc_log_new_medaxil();
-        `);
+	        EXECUTE PROCEDURE fn_log_anbar();`
+        );
     }
     catch (e) {
         e.message = "Error occured in createTriggers() -> " + e.message
@@ -143,8 +143,7 @@ const createTriggers = async () => {
 
 const dropFunctions = async () => {
     try {
-        await mypool.query(`DROP FUNCTION IF EXISTS fnc_log_existing_medaxil;`)
-        await mypool.query(`DROP FUNCTION IF EXISTS fnc_log_new_medaxil;`)
+        await mypool.query(`DROP FUNCTION IF EXISTS fn_log_anbar;`)
     }
     catch (e) {
         e.message = "Error occured in dropFunctions() -> " + e.message
@@ -154,35 +153,32 @@ const dropFunctions = async () => {
 const createFunctions = async () => {
     try {
         await mypool.query(`
-        CREATE OR REPLACE FUNCTION fnc_log_existing_medaxil()
-	    RETURNS TRIGGER
-	    LANGUAGE plpgsql
-	    AS
-	    $$
-		BEGIN
-			
-			INSERT INTO log_medaxil(mehsultipi_id, evvelki_miqdar, yeni_miqdar)
-			VALUES (OLD.mehsultipi_id, OLD.mehsul_miqdar, NEW.mehsul_miqdar);
-			
-			RETURN NEW;
-		END;
-	    $$
-	    ;
-        `)
-
-        await mypool.query(`
-        CREATE OR REPLACE FUNCTION fnc_log_new_medaxil()
+        CREATE OR REPLACE FUNCTION fn_log_anbar()
 	    RETURNS TRIGGER
 	    LANGUAGE plpgsql
 	    AS
 	    $$
 	    BEGIN
-		    INSERT INTO log_medaxil(mehsultipi_id, evvelki_miqdar, yeni_miqdar)
-		    VALUES (NEW.mehsultipi_id, 0::INT, NEW.mehsul_miqdar);
-	        RETURN NEW;
+		IF (TG_OP = 'UPDATE') THEN
+			IF(NEW.mehsul_miqdar > OLD.mehsul_miqdar) THEN
+				INSERT INTO logs_anbar(operation_id, mehsul_id, old_miqdar, new_miqdar)
+				VALUES
+				(1, OLD.mehsul_id, OLD.mehsul_miqdar, NEW.mehsul_miqdar);
+			ELSIF(NEW.mehsul_miqdar < OLD.mehsul_miqdar) THEN
+				INSERT INTO logs_anbar(operation_id, mehsul_id, old_miqdar, new_miqdar)
+				VALUES
+				(2, OLD.mehsul_id, OLD.mehsul_miqdar, NEW.mehsul_miqdar);
+			
+			END IF;
+			
+		ELSIF (TG_OP = 'INSERT') THEN
+			INSERT INTO logs_anbar(operation_id, mehsul_id, old_miqdar, new_miqdar)
+			VALUES
+			(1, NEW.mehsul_id, 0, NEW.mehsul_miqdar);		
+		END IF;
+	    RETURN NEW;
 	    END;
-	    $$
-	    ;
+	    $$;
         `)
     }
     catch (e) {
@@ -202,6 +198,18 @@ const createViews = async () => {
                     ON an.mehsultipi_id = mt.mehsultipi_id
                 INNER JOIN saticilar st
                     ON an.satici_id = st.satici_id;
+        `);
+        await mypool.query(`
+            CREATE VIEW view_logs_anbar
+            AS
+                SELECT l.id, o.name, mt.mehsultipi, l.old_miqdar, l.new_miqdar, l.log_time
+                FROM logs_anbar l
+                INNER JOIN operations o
+                ON l.operation_id = o.id
+                INNER JOIN anbar an
+                ON l.mehsul_id = an.mehsul_id
+                INNER JOIN mehsul_tipleri mt
+                ON an.mehsultipi_id = mt.mehsultipi_id;
         `)
     } catch (e) {
         e.message = "Error occured in createViews() -> " + e.message
@@ -220,7 +228,14 @@ const populateTables = async () => {
         `, [
             hashPass('apple123'),
             hashPass('timoo909'),
-            hashPass('cow44cool')])
+            hashPass('cow44cool')]);
+
+        await mypool.query(`
+            insert into operations(id, name)
+            values
+            (1, 'MD'),
+            (2, 'MX');
+        `)
 
         await mypool.query(`
         INSERT INTO mehsul_tipleri(mehsultipi)
