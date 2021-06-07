@@ -9,5 +9,5 @@ module.exports = function jwtGenerator(user_id, user_role) {
         }
     }
 
-    return jwt.sign(payload, process.env.jwtSecret, { expiresIn: "30" })
+    return jwt.sign(payload, process.env.jwtSecret, { expiresIn: 60 })
 }
