@@ -9,6 +9,7 @@ const router = Router();
 
 router.post('/register', validinfo, async (req, res) => {
     const { email, name, password } = req.body
+    console.log(email + name + password);
 
     try {
         const user = await mypool.query(`SELECT * FROM users WHERE user_email = $1`, [email])
