@@ -2,6 +2,10 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const { prepareDb } = require('./db/db_conn')
+const redis = require('redis');
+
+const client = redis.createClient({ host: 'test-redis.gp30xf.0001.use1.cache.amazonaws.com', port: '6379' })
+client.setex('salam', 3600, 'Hello form Redis!')
 
 // Routers
 const userAuth = require('./router/userAuth');
@@ -30,6 +34,13 @@ app.use('/reports', reportsRouter)
 
 app.get('/', (req, res) => {
     res.status(200).send('ROOT PATH ACCESSED');
+})
+
+app.get('/testredis', (req, res) => {
+    client.get('salam', (err, reply) => {
+        if (err) throw err;
+        res.status(200).send(reply)
+    })
 })
 
 async function main() {
