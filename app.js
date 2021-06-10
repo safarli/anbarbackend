@@ -32,6 +32,7 @@ app.use('/helpers', helperRouter)
 app.use('/reports', reportsRouter)
 // ROUTERS END
 
+// Routes
 app.get('/', (req, res) => {
     res.status(200).send('ROOT PATH ACCESSED');
 })
