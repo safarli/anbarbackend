@@ -38,7 +38,9 @@ app.get('/', (req, res) => {
 
 app.get('/testredis', (req, res) => {
     client.get('salam', (err, reply) => {
-        if (err) throw err;
+        if (err) {
+            return res.status(200).send(err.message);
+        }
         res.status(200).send(reply)
     })
 })
