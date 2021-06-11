@@ -25,7 +25,7 @@ const verifyToken = (request, response, next) => {
   });
 };
 
-// **********************************************************************
+// ! **********************************************************************
 
 // This is a NodeJs example. The logic can be replicated in any language or framework.
 
@@ -75,7 +75,7 @@ router.post('/logout', verifyToken, (request, response) => {
   });
 });
 
-// *********************************************************************
+// ! *********************************************************************
 
 module.exports = (request, response, next) => {
 
@@ -100,7 +100,7 @@ module.exports = (request, response, next) => {
   });
 };
 
-// **************************************************************
+// ! **************************************************************
 
 // 1. The server receives a logout request
 // 2. The verifyToken middleware checks 
@@ -128,7 +128,7 @@ router.post('/logout', verifyToken, (request, response) => {
 });
 
 
-// *********************************************************************
+// ! *********************************************************************
 
 module.exports = (request, response, next) => {
 
