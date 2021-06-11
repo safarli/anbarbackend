@@ -4,6 +4,9 @@ const cors = require('cors');
 const { prepareDb } = require('./db/db_conn')
 const redis = require('redis');
 
+const client = redis.createClient({ host: 'redis-demo.gp30xf.0001.use1.cache.amazonaws.com', port: 6379 });
+client.setex('hello', 3600, 'Salam Dunya From AWS Redsi');
+
 // Routers
 const userAuth = require('./router/userAuth');
 const inRouter = require('./router/in_router');
@@ -32,6 +35,13 @@ app.use('/reports', reportsRouter)
 // Routes
 app.get('/', (req, res) => {
     res.status(200).send('ROOT PATH ACCESSED');
+})
+
+app.get('/redis', (req, res) => {
+    client.get('hello', (err, reply) => {
+        if (err) return res.status(404).send('Redis couldnt found anything');
+        res.status(200).send(reply)
+    })
 })
 
 async function main() {
