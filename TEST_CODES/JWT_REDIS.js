@@ -65,7 +65,7 @@ router.post('/logout', verifyToken, (request, response) => {
     // and on subsequent requests to the logout route the user 
     // will be found and the token will be appended to the already existing list.
     const blacklistData = {
-      [userId]: [token],
+      [userId]: [token]
     };
     redisClient.setex(userId, 3600, JSON.stringify(blacklistData));
     return response.send({
@@ -74,3 +74,78 @@ router.post('/logout', verifyToken, (request, response) => {
     });
   });
 });
+
+// *********************************************************************
+
+module.exports = (request, response, next) => {
+
+  // 1. take out the userId and toekn from the request
+  const { userId, token } = request;
+
+  // 2. Check redis if the user exists 
+  redisClient.get(userId, (error, data) => {
+    if (error) {
+      return response.status(400).send({ error });
+    }
+    // 3. if so, check if the token provided in the request has been blacklisted. If so, redirect or send a response else move on with the request.
+    if (data !== null) {
+      const parsedData = JSON.parse(data);
+      if (parsedData[userId].includes(token)) {
+        return response.send({
+          message: 'You have to login!',
+        });
+      }
+      return next();
+    }
+  });
+};
+
+// **************************************************************
+
+// 1. The server receives a logout request
+// 2. The verifyToken middleware checks 
+// and makes sure the token in the request 
+// object is valid and it appends it to the request object, 
+// as well as the token expiration date
+
+router.post('/logout', verifyToken, (request, response) => {
+
+  // 3. take out the userId, token and tokenExp from the request
+  const { userId, token, tokenExp } = request;
+
+  /** 
+  4. use the set method provided by Redis to insert the token
+
+  Note: the format being used is to combine 'blacklist_' as a prefix to the token and use it as the key and a boolean, true, as the value. We also set the expiration time for the key in Redis to the same expiration time of the token itself as stated above
+  **/
+  redisClient.setex(`blacklist_${token}`, tokenExp, true);
+
+  // return  the response
+  return response.send({
+    status: 'success',
+    message: 'Logout successful',
+  });
+});
+
+
+// *********************************************************************
+
+module.exports = (request, response, next) => {
+
+  // 1. take out the token from the request
+  const { token } = request;
+
+  // 2. Check Redis if the token exists. If so, redirect or send a response else move on with the request.
+  redisClient.get(`blacklist_${token}`, (error, data) => {
+    if (error) {
+      return response.status(400).send({ error });
+    }
+    if (data !== null) {
+      return response.send({
+        message: 'You have to login!',
+      });
+    }
+    // 3. If not, move on with the request.
+    return next();
+  });
+};
