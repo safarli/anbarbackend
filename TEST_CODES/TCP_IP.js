@@ -15,12 +15,14 @@ client.connect(CONN.port, CONN.host, () => {
 
 
 setInterval(() => {
-	// client.write(RELE_1_COMMAND)
-	client.write(RELE_2_COMMAND)
-}, 1500)
+	client.write(RELE_1_COMMAND)
+	// client.write(RELE_2_COMMAND)
+}, 5000)
 
 client.on('data', function (data) {
-	console.log(data);
-	console.log(typeof data);
-	console.log(typeof data.toString());
+	let newbuf = Buffer.from('')
+	const cr_index = data.indexOf(parseInt('0x0d'), 0, 'hex')
+	console.log(cr_index);
+	data.copy(newbuf, 0, cr_index)
+	console.log(parseInt(data.toString()));
 })
