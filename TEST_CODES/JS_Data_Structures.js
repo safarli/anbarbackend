@@ -1,11 +1,8 @@
-const arr = [14, 29, 1, 83];
 
-const reducer = (accumulator, currVal) => {
-	console.log(accumulator);
-	console.log(currVal)
-	return accumulator + currVal;
-}
+const myset = new Set();
 
-const result = arr.reduce(reducer);
+myset.add('salam')
+myset.add('sagol')
+myset.add('hello')
 
-console.log('Result: ' + result)
+console.log(myset);
